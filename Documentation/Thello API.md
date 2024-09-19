@@ -15,7 +15,7 @@ Depending on usage, different APIs are available
 
 ## <a id="mgm_api">Management API</a>
 
-This API is reachable on following url: <https://api.v3.thello.cloud>
+This API is reachable on following url: https://api.v3.thello.cloud
 
 ## <a id="signalr_api">Signal-R API</a>
 
@@ -35,7 +35,7 @@ async function login() {
     const username = $("#usernameInput").val();
     const password = $("#passwordInput").val();
     console.log('Current JWT Token:', token);
-    const response = await fetch('<https://api.v3.thello.cloud/api/Authentication/Authenticate>', {
+    const response = await fetch('https://api.v3.thello.cloud/api/Authentication/Authenticate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userName: username, password: password })
@@ -53,15 +53,28 @@ async function login() {
 }
 ```
 
-Once the JWTToken is received it can be used to establish an authenticated Signal-R connection.
+Once the JWTToken is received it can be used to establish authenticated requests to the management API or Signal-R hub.
 
 The SignalR service is not located on the same url as the management API and is tenant specific. The signal-R service base url can be obtained through the Management API, using “/api/Tenant/mine” request and the SignalRUrl field of the returned structure
+
+Example:
+
+```{lang=javascript} 
+ const responseMine = await fetch(baseUrl + "/tenants/mine", {
+        headers: { Authorization: 'Bearer '+token }
+    });
+    if (responseMine.ok) {
+        document.tenant = await responseMine.json();
+        console.log('SignalR url:', document.tenant.SignalRUrl);
+    }
+```
+
 
 The Signal-R connection can be created using:
 
 ```{lang=javascript} 
 connection = new signalR.HubConnectionBuilder()
-    .withUrl(thelloSignalRUrl, {
+    .withUrl(document.tenant.signalRUrl, {
         accessTokenFactory: () => token
     })
     .withAutomaticReconnect()
@@ -69,7 +82,8 @@ connection = new signalR.HubConnectionBuilder()
     .build();
 ```
 
-Where thelloSignalRUrl is the url obtained earlier and token is the JwtToken
+Where signalRUrl is the url obtained earlier and saved into document.tenant (in this example)
+token is the JwtToken
 
 ### API Key authentication
 
@@ -89,7 +103,7 @@ connection = new signalR.HubConnectionBuilder()
 
 ### SignalR client API
 
-- ```public async Task SubscribeBlocNotifications(string blocId)```\
+```public async Task SubscribeBlocNotifications(string blocId)```\
 \
 Subscribes for event sent by a specific bloc\
 Notifications are received by the signal-r client on the following callback:
@@ -106,22 +120,22 @@ Where:
     - ```data```: optional data dependent of the bloc type sending the notification
     - ```callContextId```: A contextId that can be used with SetVariable or GetVariable
 
-- ```public async Task UnsubscribeBlocNotifications(string blocId)```\
+```public async Task UnsubscribeBlocNotifications(string blocId)```\
 \
 Unsubscribes callback notification of event bloc that would have been previously subscribed using SubscribeBlocNotifications()
 
-- ```public async Task BlocNotify(string blocId, string eventName, string sipCallId, string fromName, string fromNumber, string to, string data, Guid contextId)``` \
+```public async Task BlocNotify(string blocId, string eventName, string sipCallId, string fromName, string fromNumber, string to, string data, Guid contextId)``` \
 \
 This function may be used to simulate a BlocNotification.\
 Use it for test purpose of your interface
 
-- ```public Task SetVariable(Guid callContextId, string name, object value)```\
+```public Task SetVariable(Guid callContextId, string name, object value)```\
 \
 Set specified KSL variable into the specified callContext. callContextId is received by bloc notifications and is constant throughout the call.\
 \
 Setting a variable will set it for the stack of all blocs executed during the call, this means that new bloc will have the variable set and previous bloc (if they return from the stack) will also have the variable set. Take care to not set variables that would affect the normal behaviour of the blocs and respect the bloc documentation as described below
 
-- ```public async Task<object> GetVariable(Guid callContextId, string name)``` \
+```public async Task<object> GetVariable(Guid callContextId, string name)``` \
 \
 Read the specified variable from the call context stack. Only the latest value in the stack will be returned, therefore the returned value may depend on the exact time the GetVariable is executed
 
