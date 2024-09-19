@@ -6,11 +6,24 @@ tenant = null;
 $(document).ready(function () {
 
     $("#app").hide();
-    $("#exampleModal").modal({
+    $("#loginModal").modal({
         backdrop: 'static'
     });
-    $("#exampleModal").modal('show');
+
+
+    // ****** For production purpose - uncomment lines 
+    // >> FROM HERE
     $("#environmentSelect").val('stable');
+    $("#loginModal").modal('show');
+    // << TO HERE
+
+    // ****** For test purpose - uncomment lines and specify valid username/password
+    // >> FROM HERE
+    // $("#usernameInput").val('<USERNAME>');
+    // $("#passwordInput").val('<PASSWORD>');
+    // $("#environmentSelect").val('<ENVIRONMENT');
+    // login();
+    // << TO HERE
 
 });
 
@@ -31,7 +44,6 @@ async function login() {
     const password = $("#passwordInput").val();
 
     const environment = $("#environmentSelect").val();
-    console.log('Environment =', environment);
     let apiUrl = '';
     if (environment == 'debug') {
         apiUrl = "http://localhost:83/api"
@@ -96,7 +108,7 @@ async function login() {
         $("#userPasswordForm").hide();
         connection.start()
             .catch(err => console.error(err.toString()));
-        $("#exampleModal").modal('hide');
+        $("#loginModal").modal('hide');
         $("#app").show();
     } else {
         console.error('Authentication failed');
@@ -114,7 +126,7 @@ function logout() {
     $("#logoutButton").prop("disabled", true);
     $("#userLoginForm").show();
     $("#userPasswordForm").show();
-    $("#exampleModal").modal('show');
+    $("#loginModal").modal('show');
     $("#usernameInput").val('');
     $("#passwordInput").val('');
     $("#app").hide();
@@ -166,4 +178,12 @@ function get() {
 function scrollToBottom() {
     const container = $('.bloc-updates-container');
     container.scrollTop(container.prop('scrollHeight'));
+}
+
+function openPhone() {
+    $("#webphoneModal").modal('show');
+}
+
+function closePhone() {
+    $("#webphoneModal").modal('hide');    
 }
