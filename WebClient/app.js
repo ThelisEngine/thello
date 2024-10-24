@@ -175,6 +175,19 @@ function get() {
     scrollToBottom();
 }
 
+function setFlexHandset() {
+    const userId = $("#flexUserId").val();
+    const handsetId = $("#flexHandsetId").val();
+    console.log('SetFlexHandset', userId, handsetId);
+    connection.invoke('SetFlexHandset', userId, handsetId).catch(err => console.error(err.toString()));
+}
+
+function clearFlexHandset() {
+    const userId = $("#flexUserId").val();
+    console.log('ClearFlexHandset', userId);
+    connection.invoke('SetFlexHandset', userId, null).catch(err => console.error(err.toString()));
+}
+
 function scrollToBottom() {
     const container = $('.bloc-updates-container');
     container.scrollTop(container.prop('scrollHeight'));
