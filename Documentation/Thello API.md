@@ -158,6 +158,24 @@ Just copy/paste the correct Id into your own database or code.
 
 ### Thello functional blocs compatibles with SignalR API</a>
 
+#### GroupCall bloc
+
+Notifications sent by "Group call" blocs
+
+- GROUP_ENTER
+- GROUP_ANSWER
+- GROUP_TIMEOUT
+- GROUP_HANGUP
+
+for GROUP_ANSWER, the optional data field contains the UserID who answered the call
+GROUP_HANGUP is triggered after an answered call has been hangup
+
+Possible flows:
+
+GROUP_ENTER -> GROUP_TIMEOUT
+GROUP_ENTER -> GROUP_ANSWER(UserID) -> GROUP_HANGUP
+
+
 #### Queue bloc
 
 Notifications sent by “Queues” blocs
