@@ -86,10 +86,10 @@ async function login() {
                 .build();
 
             connection.on("BlocEvent", (blocId, eventName, sipCallId, fromName, fromNumber, to, data, callContextId) => {
-                console.log(sipCallId, eventName, "blocId = " + blocId + " fromName = " + fromName + " fromNumber = " + fromNumber + " to = " + to + " contextId =" + callContextId);
+                console.log(sipCallId, eventName, "blocId = " + blocId + " fromName = " + fromName + " fromNumber = " + fromNumber + " to = " + to + " contextId = " + callContextId + " data = " + data);
                 const li = document.createElement("li");
                 li.classList.add("list-group-item");
-                li.textContent = eventName + " / blocId=" + blocId + " fromName=" + fromName + " fromNumber=" + fromNumber + " to=" + to + " contextId=" + callContextId;
+                li.textContent = eventName + " / blocId=" + blocId + " fromName=" + fromName + " fromNumber=" + fromNumber + " to=" + to + " contextId=" + callContextId + " data=" + data;
                 $("#bloc-updates").append(li);
                 $("#callContextId").val(callContextId);
                 scrollToBottom();
