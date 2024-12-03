@@ -78,13 +78,25 @@
                 </div>
             </div>
         </div>
-        <div class="row" style="margin-bottom: 16px;">
-            
+        <div class="row" >
+            <div class="col-12" style="margin-bottom: 16px;">
+                <div class="card">
+                    <div class="card-header">
+                        <button class="btn btn-primary" style="float: right;" onclick="getActiveChannels()">GetActiveChannels</button>
+                        <h5 class="card-title">Active channels</h5>
+                        <p class="card-text">Currently active channels managed by core service</p>
+                    </div>
+                    <div class="card-body">
+                        <ul id="active-channels" class="list-group list-group-flush">                            
+                        </ul>
+                    </div>
+                </div>
+            </div>            
         </div>
     </div>
     <ul id="messagesList"></ul>
 
-    <!-- Modal -->
+    <!-- Modal Login -->
     <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="Authentication" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -127,6 +139,7 @@
                                     <option value="test">Test</option>
                                     <option value="stable">Stable</option>
                                     <option value="debug">Debug</option>
+                                    <option value="beta">Beta</option>
                                 </select>
                             </div>
                         </div>
@@ -140,6 +153,7 @@
         </div>
     </div>
 
+    <!-- Modal WebPhone -->
     <div class="modal fade" id="webphoneModal" tabindex="-1" role="dialog" aria-labelledby="Web RTC Phone" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">

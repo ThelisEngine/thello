@@ -187,3 +187,33 @@ function openPhone() {
 function closePhone() {
     $("#webphoneModal").modal('hide');    
 }
+
+function getActiveChannels() {
+    $("#active-channels").empty();
+    var r = connection.invoke("GetChannels")
+                .catch(err => {
+                    const li = document.createElement("li");
+                    li.textContent = err.toString();
+                    li.classList.add("list-group-item");
+                    li.classList.add("text-danger");
+                    $("#active-channels").append(li);
+                    console.log(err)
+                })
+                .then((result) => {
+
+                    if (!result)
+                        return;
+
+                    console.log('Result', result);
+
+                    return;
+
+                    result.foreach( function(channel) {
+                        const li = document.createElement("li");
+                        li.classList.add("list-group-item");
+                        li.textContent = `Channel ID: ${channel.ChannelId}, Call Context: ${channel.CallContextId}, Caller Name: ${channel.CallerName}, Caller Number: ${channel.CallerNumber}`;
+                        $("#active-channels").append(li);
+                    });
+                });
+
+}
