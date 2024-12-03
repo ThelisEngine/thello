@@ -86,10 +86,10 @@ async function login() {
                 .build();
 
             connection.on("BlocEvent", (blocId, eventName, sipCallId, fromName, fromNumber, to, data, callContextId) => {
-                console.log(sipCallId, eventName, "blocId = " + blocId + " fromName = " + fromName + " fromNumber = " + fromNumber + " to = " + to + " contextId =" + callContextId);
+                console.log(sipCallId, eventName, "blocId = " + blocId + " fromName = " + fromName + " fromNumber = " + fromNumber + " to = " + to + " contextId = " + callContextId + " data = " + data);
                 const li = document.createElement("li");
                 li.classList.add("list-group-item");
-                li.textContent = eventName + " / blocId=" + blocId + " fromName=" + fromName + " fromNumber=" + fromNumber + " to=" + to + " contextId=" + callContextId;
+                li.textContent = eventName + " / blocId=" + blocId + " fromName=" + fromName + " fromNumber=" + fromNumber + " to=" + to + " contextId=" + callContextId + " data=" + data;
                 $("#bloc-updates").append(li);
                 $("#callContextId").val(callContextId);
                 scrollToBottom();
@@ -173,6 +173,19 @@ function get() {
     li.textContent = varName + " = " + r;
     $("#bloc-updates").append(li);
     scrollToBottom();
+}
+
+function setFlexHandset() {
+    const userId = $("#flexUserId").val();
+    const handsetId = $("#flexHandsetId").val();
+    console.log('SetFlexHandset', userId, handsetId);
+    connection.invoke('SetFlexHandset', userId, handsetId).catch(err => console.error(err.toString()));
+}
+
+function clearFlexHandset() {
+    const userId = $("#flexUserId").val();
+    console.log('ClearFlexHandset', userId);
+    connection.invoke('SetFlexHandset', userId, null).catch(err => console.error(err.toString()));
 }
 
 function scrollToBottom() {

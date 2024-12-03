@@ -17,6 +17,11 @@ Depending on usage, different APIs are available
 
 This API is reachable on following url: https://api.v3.thello.cloud
 
+### Click to call feature
+
+/api/Calls/click_to_call?to=[number to dial]&handsetId=[optional handset guid]&APIKey=
+
+
 ## <a id="signalr_api">Signal-R API</a>
 
 ### Initializing the SignalR connection
@@ -139,7 +144,37 @@ Setting a variable will set it for the stack of all blocs executed during the ca
 \
 Read the specified variable from the call context stack. Only the latest value in the stack will be returned, therefore the returned value may depend on the exact time the GetVariable is executed
 
+```public async Task SetFlexHandset(Guid? userId, guid? handsetId)``` \
+\
+Login or logout a flex user on specified handset.
+Note: a user can only be flex on a single handset, therefore if you log to another handset, the previous handset will be logged-out
+to logout the user from any handset, just specify a null handsetId
+
+if userId is null, the currently logged user (into signalR API) will be used.
+
+userId and handsetId can be read from the web portal. The "ID" columns are not visible by default, so right click on the column header in the user's list or the handset's list and choose "Column chooser", then select the "ID" column
+Just copy/paste the correct Id into your own database or code.
+
+
 ### Thello functional blocs compatibles with SignalR API</a>
+
+#### GroupCall bloc
+
+Notifications sent by "Group call" blocs
+
+- GROUP_ENTER
+- GROUP_ANSWER
+- GROUP_TIMEOUT
+- GROUP_HANGUP
+
+for GROUP_ANSWER, the optional data field contains the UserID who answered the call
+GROUP_HANGUP is triggered after an answered call has been hangup
+
+Possible flows:
+
+GROUP_ENTER -> GROUP_TIMEOUT
+GROUP_ENTER -> GROUP_ANSWER(UserID) -> GROUP_HANGUP
+
 
 #### Queue bloc
 
