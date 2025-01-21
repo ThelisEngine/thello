@@ -81,6 +81,56 @@
                     </div>
                 </div>
             </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">DB Variables</h5>
+                        <p class="card-text">Get or Set db variables</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-auto"><input class="form-control" type="text" id="dbVariableName" placeholder="Variable name" /></div>
+                            <div class="col-auto"><input class="form-control" type="text" id="dbVariableValue" placeholder="Variable value" /></div>
+                            <div class="col-auto">
+                                <button class="btn btn-warning" onclick="getDbVariable()">GetDbVariable</button>
+                                <button class="btn btn-warning" onclick="setDbVariable()">SetDbVariable</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Set profile output</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-auto"><input class="form-control" type="text" id="profileBlocId" placeholder="profile bloc Guid" /></div>
+                            <div class="col-auto"><input class="form-control" type="text" id="profileTargetBlocId" placeholder="target bloc Guid" /></div>
+                            <div class="col-auto">
+                                <button class="btn btn-warning" onclick="setProfile()">setProfile</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Guid utilities</h5>
+                        <p class="card-text">Convert Guid to shortguid</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-auto"><input class="form-control" type="text" id="dbGuidVariableValue" placeholder="Guid Variable value" /></div>
+                            <div class="col-auto">
+                                <button class="btn btn-warning" onclick="convertShortGuid()">Convert Guid to shortguid</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col-12" style="margin-bottom: 16px;">

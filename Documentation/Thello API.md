@@ -125,27 +125,39 @@ Where:
     - ```data```: optional data dependent of the bloc type sending the notification
     - ```callContextId```: A contextId that can be used with SetVariable or GetVariable
 
-```public async Task UnsubscribeBlocNotifications(string blocId)```\
-\
+```public async Task UnsubscribeBlocNotifications(string blocId)```
+
 Unsubscribes callback notification of event bloc that would have been previously subscribed using SubscribeBlocNotifications()
 
-```public async Task BlocNotify(string blocId, string eventName, string sipCallId, string fromName, string fromNumber, string to, string data, Guid contextId)``` \
-\
-This function may be used to simulate a BlocNotification.\
+```public async Task BlocNotify(string blocId, string eventName, string sipCallId, string fromName, string fromNumber, string to, string data, Guid contextId)``` 
+
+This function may be used to simulate a BlocNotification.
 Use it for test purpose of your interface
 
-```public Task SetVariable(Guid callContextId, string name, object value)```\
-\
-Set specified KSL variable into the specified callContext. callContextId is received by bloc notifications and is constant throughout the call.\
-\
+```public Task SetVariable(Guid callContextId, string name, object value)```
+
+Set specified KSL variable into the specified callContext. callContextId is received by bloc notifications and is constant throughout the call.
+
 Setting a variable will set it for the stack of all blocs executed during the call, this means that new bloc will have the variable set and previous bloc (if they return from the stack) will also have the variable set. Take care to not set variables that would affect the normal behaviour of the blocs and respect the bloc documentation as described below
 
-```public async Task<object> GetVariable(Guid callContextId, string name)``` \
-\
+```public Task<object> GetVariable(Guid callContextId, string name)``` 
+
 Read the specified variable from the call context stack. Only the latest value in the stack will be returned, therefore the returned value may depend on the exact time the GetVariable is executed
 
-```public async Task SetFlexHandset(Guid? userId, guid? handsetId)``` \
-\
+```public async Task<int> SetDbVariable(string name, string value)```
+
+Set specified db variable. This allows storage of key/value pairs that can be used by blocks
+The variable must exists to be updated
+Result is the number of updated records (1 if variable exists, 0 otherwise)
+Available variables depend on the dialplan and blocks used
+
+```public async Task<string?> GetDbVariable(string name)``` 
+
+Read the specified variable from the database.
+Available variables depend on the dialplan and blocks used
+
+```public async Task SetFlexHandset(Guid? userId, guid? handsetId)``` 
+
 Login or logout a flex user on specified handset.
 Note: a user can only be flex on a single handset, therefore if you log to another handset, the previous handset will be logged-out
 to logout the user from any handset, just specify a null handsetId
@@ -200,3 +212,76 @@ If you decide to send a queued call to an operator, set the variable PICKUP_OPER
 Example:
 
 ```SetVariable(callContextId, "PICKUP_OPERATOR", "f17618f7-56b1-4a2f-8e7f-ea97f0a995e0")```
+
+#### Profiles bloc
+
+Profiles bloc uses a db Variable to keep the currently selected profile output.
+The variable name is the bloc's ID where "-" are replaced by "_"
+
+Possible values are ID of destination blocs (converted to shortguid).
+
+Example:
+```
+Profile bloc ID = 638c87c1-37ac-432b-8779-d1e4b8246099
+Output#1 targets bloc ID ef85b05b-1e75-4d41-adbc-19959a1cf024  (shortguid = W7CF73UeQU2tvBmVmhzwJA)
+Output#2 targets bloc ID bc4bb9b9-ad2b-4f80-818a-b93961048382  (shortguid = ublLvCutgE-Birk5YQSDgg)
+Output#default targets bloc ID ...
+
+Select output #2:
+
+async function setProfileBlocOutput(blocId, targetBlocId)
+{
+  return connection.invoke('SetDbVariable', blocId.replaceAll("-","_"), shortguid(targetBlocId));
+}
+
+var r = await setProfileBlocOutput("638c87c1-37ac-432b-8779-d1e4b8246099", "bc4bb9b9-ad2b-4f80-818a-b93961048382").catch(err => console.error(err.toString()));
+if (r==0)
+    alert("Failed to set profile output, it does not exists");
+
+
+which is equivalent to
+
+var r = await SetDbVariable("638c87c1_37ac_432b_8779_d1e4b8246099", "ublLvCutgE-Birk5YQSDgg").catch(err => console.error(err.toString()));
+if (r==0)
+    alert("Failed to set profile output, it does not exists");
+
+```
+Note:
+
+## Utilities
+
+### Guid to shortguid conversion:
+
+C#
+```{lang=c#}
+Convert.ToBase64String(guid.ToByteArray()).Replace("/", "_").Replace("+", "-").Substring(0, 22)
+```
+
+Javascript
+```{lang=javascript}
+function guidToBytes(guid) {
+    var bytes = [];
+    guid.split('-').map((number, index) => {
+        var bytesInChar = index < 3 ? number.match(/.{1,2}/g).reverse() :  number.match(/.{1,2}/g);
+        bytesInChar.map((byte) => { bytes.push(parseInt(byte, 16));})
+    });
+    return bytes;
+}
+
+function shortguid(guid) {
+    const byteArray = guidToBytes(guid);
+    const base64String = btoa(String.fromCharCode(...byteArray))
+        .replace(/\//g, '_')  // Replace '/' with '_'
+        .replace(/\+/g, '-')  // Replace '+' with '-'
+        .substring(0, 22);     // Take the first 22 characters
+    
+    return base64String;
+}
+```
+
+Note that only directly connected blocs are allowed, it is not allowed to "jump" to any destination bloc for consistency reasons
+
+Example
+
+```v = GetDbVariable("06e80f70_4f78_4104_976b_9e5c64f0a0f4")```
+```SetDbVariable("06e80f70_4f78_4104_976b_9e5c64f0a0f4", "fae64a62-4a46-4861-a9fa-cc17cd55d318")```
