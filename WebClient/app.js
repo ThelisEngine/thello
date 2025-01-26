@@ -189,14 +189,14 @@ function clearFlexHandset() {
 }
 
 async function getDbVariable() {
-    const variableName = $("#dbVariableName").val().replaceAll("-","_");
+    const variableName = $("#dbVariableName").val();
     var r = await connection.invoke('GetDbVariable', variableName).catch(err => console.error(err.toString()));
     console.log('GetDbVariable', variableName, r);
     $("#dbVariableValue").val(r);
 }
 
 async function setDbVariable() {
-    const variableName = $("#dbVariableName").val().replaceAll("-","_");
+    const variableName = $("#dbVariableName").val();
     const variableValue = $("#dbVariableValue").val();
     console.log('SetDbVariable', variableName, variableValue);
     var r = await connection.invoke('SetDbVariable', variableName, variableValue).catch(err => console.error(err.toString()));
@@ -207,20 +207,6 @@ async function setDbVariable() {
 function convertShortGuid() {
     const variableValue = $("#dbGuidVariableValue").val();
     $("#dbVariableValue").val(shortguid(variableValue));
-}
-
-async function setProfile() {
-    const blocId = $("#profileBlocId").val();
-    const targetBlocId = $("#profileTargetBlocId").val();
-    console.log('SetProfile', blocId, targetBlocId);
-    var r = await setProfileBlocOutput(blocId, targetBlocId).catch(err => console.error(err.toString()));
-    if (r==0)
-        alert("Failed to set profile output, it does not exists");
-}
-
-async function setProfileBlocOutput(blocId, targetBlocId)
-{
-    return connection.invoke('SetDbVariable', blocId.replaceAll("-","_"), shortguid(targetBlocId));
 }
 
 function guidToBytes(guid) {

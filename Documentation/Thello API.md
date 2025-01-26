@@ -19,7 +19,16 @@ This API is reachable on following url: https://api.v3.thello.cloud
 
 ### Click to call feature
 
-/api/Calls/click_to_call?to=[number to dial]&handsetId=[optional handset guid]&APIKey=
+```
+https://api.v3.thello.cloud/api/Calls/click_to_call?to=<NUMBER_TO_DIAL>&tenantId=<GUID_TENANT_ID>&apiKey=<USER_API_KEY>[&handsetId=<OPTIONAL_GUID_HANDSET_ID_>]
+```
+When calling this web service, all active phone for user corresponding to the ApiKey will ring. When one of them is answered, the NUMBER_TO_DIAL will be dialed
+
+GUID_HANDSET_ID is an optional handset to specify only one handset that should ring before calling
+
+Alternatively:
+* ApiKey is optional if a previous login is performed by the user on API
+* ApiKey can be passed as a header
 
 
 ## <a id="signalr_api">Signal-R API</a>
@@ -216,37 +225,26 @@ Example:
 #### Profiles bloc
 
 Profiles bloc uses a db Variable to keep the currently selected profile output.
-The variable name is the bloc's ID where "-" are replaced by "_"
+The variable name is the bloc's ID
 
-Possible values are ID of destination blocs (converted to shortguid).
+Possible values are from -1 to n, which is the profile index to be selected.
+-1 corresponds to the default output, while 0 is the first output
 
 Example:
 ```
 Profile bloc ID = 638c87c1-37ac-432b-8779-d1e4b8246099
-Output#1 targets bloc ID ef85b05b-1e75-4d41-adbc-19959a1cf024  (shortguid = W7CF73UeQU2tvBmVmhzwJA)
-Output#2 targets bloc ID bc4bb9b9-ad2b-4f80-818a-b93961048382  (shortguid = ublLvCutgE-Birk5YQSDgg)
-Output#default targets bloc ID ...
 
 Select output #2:
 
-async function setProfileBlocOutput(blocId, targetBlocId)
-{
-  return connection.invoke('SetDbVariable', blocId.replaceAll("-","_"), shortguid(targetBlocId));
-}
-
-var r = await setProfileBlocOutput("638c87c1-37ac-432b-8779-d1e4b8246099", "bc4bb9b9-ad2b-4f80-818a-b93961048382").catch(err => console.error(err.toString()));
+var r = await connection.invoke('SetDbVariable', blocId, 1).catch(err => console.error(err.toString()));
 if (r==0)
     alert("Failed to set profile output, it does not exists");
-
-
-which is equivalent to
-
-var r = await SetDbVariable("638c87c1_37ac_432b_8779_d1e4b8246099", "ublLvCutgE-Birk5YQSDgg").catch(err => console.error(err.toString()));
-if (r==0)
-    alert("Failed to set profile output, it does not exists");
-
 ```
-Note:
+
+Note: the BLF mechanism used to show currently connected profile output uses a different mechanism and will not
+be updated by changing the db variable as described here. So using db modification will
+correctly affect the behaviour but may provide inconsistent display on phones
+shortcut BLF
 
 ## Utilities
 
@@ -279,9 +277,3 @@ function shortguid(guid) {
 }
 ```
 
-Note that only directly connected blocs are allowed, it is not allowed to "jump" to any destination bloc for consistency reasons
-
-Example
-
-```v = GetDbVariable("06e80f70_4f78_4104_976b_9e5c64f0a0f4")```
-```SetDbVariable("06e80f70_4f78_4104_976b_9e5c64f0a0f4", "fae64a62-4a46-4861-a9fa-cc17cd55d318")```
