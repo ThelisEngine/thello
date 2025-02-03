@@ -19,7 +19,16 @@ This API is reachable on following url: https://api.v3.thello.cloud
 
 ### Click to call feature
 
-/api/Calls/click_to_call?to=[number to dial]&handsetId=[optional handset guid]&APIKey=
+```
+https://api.v3.thello.cloud/api/Calls/click_to_call?to=<NUMBER_TO_DIAL>&tenantId=<GUID_TENANT_ID>&apiKey=<USER_API_KEY>[&handsetId=<OPTIONAL_GUID_HANDSET_ID_>]
+```
+When calling this web service, all active phone for user corresponding to the ApiKey will ring. When one of them is answered, the NUMBER_TO_DIAL will be dialed
+
+GUID_HANDSET_ID is an optional handset to specify only one handset that should ring before calling
+
+Alternatively:
+* ApiKey is optional if a previous login is performed by the user on API
+* ApiKey can be passed as a header
 
 
 ## <a id="signalr_api">Signal-R API</a>
@@ -125,27 +134,39 @@ Where:
     - ```data```: optional data dependent of the bloc type sending the notification
     - ```callContextId```: A contextId that can be used with SetVariable or GetVariable
 
-```public async Task UnsubscribeBlocNotifications(string blocId)```\
-\
+```public async Task UnsubscribeBlocNotifications(string blocId)```
+
 Unsubscribes callback notification of event bloc that would have been previously subscribed using SubscribeBlocNotifications()
 
-```public async Task BlocNotify(string blocId, string eventName, string sipCallId, string fromName, string fromNumber, string to, string data, Guid contextId)``` \
-\
-This function may be used to simulate a BlocNotification.\
+```public async Task BlocNotify(string blocId, string eventName, string sipCallId, string fromName, string fromNumber, string to, string data, Guid contextId)``` 
+
+This function may be used to simulate a BlocNotification.
 Use it for test purpose of your interface
 
-```public Task SetVariable(Guid callContextId, string name, object value)```\
-\
-Set specified KSL variable into the specified callContext. callContextId is received by bloc notifications and is constant throughout the call.\
-\
+```public Task SetVariable(Guid callContextId, string name, object value)```
+
+Set specified KSL variable into the specified callContext. callContextId is received by bloc notifications and is constant throughout the call.
+
 Setting a variable will set it for the stack of all blocs executed during the call, this means that new bloc will have the variable set and previous bloc (if they return from the stack) will also have the variable set. Take care to not set variables that would affect the normal behaviour of the blocs and respect the bloc documentation as described below
 
-```public async Task<object> GetVariable(Guid callContextId, string name)``` \
-\
+```public Task<object> GetVariable(Guid callContextId, string name)``` 
+
 Read the specified variable from the call context stack. Only the latest value in the stack will be returned, therefore the returned value may depend on the exact time the GetVariable is executed
 
-```public async Task SetFlexHandset(Guid? userId, guid? handsetId)``` \
-\
+```public async Task<int> SetDbVariable(string name, string value)```
+
+Set specified db variable. This allows storage of key/value pairs that can be used by blocks
+The variable must exists to be updated
+Result is the number of updated records (1 if variable exists, 0 otherwise)
+Available variables depend on the dialplan and blocks used
+
+```public async Task<string?> GetDbVariable(string name)``` 
+
+Read the specified variable from the database.
+Available variables depend on the dialplan and blocks used
+
+```public async Task SetFlexHandset(Guid? userId, guid? handsetId)``` 
+
 Login or logout a flex user on specified handset.
 Note: a user can only be flex on a single handset, therefore if you log to another handset, the previous handset will be logged-out
 to logout the user from any handset, just specify a null handsetId
@@ -200,3 +221,59 @@ If you decide to send a queued call to an operator, set the variable PICKUP_OPER
 Example:
 
 ```SetVariable(callContextId, "PICKUP_OPERATOR", "f17618f7-56b1-4a2f-8e7f-ea97f0a995e0")```
+
+#### Profiles bloc
+
+Profiles bloc uses a db Variable to keep the currently selected profile output.
+The variable name is the bloc's ID
+
+Possible values are from -1 to n, which is the profile index to be selected.
+-1 corresponds to the default output, while 0 is the first output
+
+Example:
+```
+Profile bloc ID = 638c87c1-37ac-432b-8779-d1e4b8246099
+
+Select output #2:
+
+var r = await connection.invoke('SetDbVariable', blocId, 1).catch(err => console.error(err.toString()));
+if (r==0)
+    alert("Failed to set profile output, it does not exists");
+```
+
+Note: the BLF mechanism used to show currently connected profile output uses a different mechanism and will not
+be updated by changing the db variable as described here. So using db modification will
+correctly affect the behaviour but may provide inconsistent display on phones
+shortcut BLF
+
+## Utilities
+
+### Guid to shortguid conversion:
+
+C#
+```{lang=c#}
+Convert.ToBase64String(guid.ToByteArray()).Replace("/", "_").Replace("+", "-").Substring(0, 22)
+```
+
+Javascript
+```{lang=javascript}
+function guidToBytes(guid) {
+    var bytes = [];
+    guid.split('-').map((number, index) => {
+        var bytesInChar = index < 3 ? number.match(/.{1,2}/g).reverse() :  number.match(/.{1,2}/g);
+        bytesInChar.map((byte) => { bytes.push(parseInt(byte, 16));})
+    });
+    return bytes;
+}
+
+function shortguid(guid) {
+    const byteArray = guidToBytes(guid);
+    const base64String = btoa(String.fromCharCode(...byteArray))
+        .replace(/\//g, '_')  // Replace '/' with '_'
+        .replace(/\+/g, '-')  // Replace '+' with '-'
+        .substring(0, 22);     // Take the first 22 characters
+    
+    return base64String;
+}
+```
+

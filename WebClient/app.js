@@ -188,6 +188,50 @@ function clearFlexHandset() {
     connection.invoke('SetFlexHandset', userId, null).catch(err => console.error(err.toString()));
 }
 
+async function getDbVariable() {
+    const variableName = $("#dbVariableName").val();
+    var r = await connection.invoke('GetDbVariable', variableName).catch(err => console.error(err.toString()));
+    console.log('GetDbVariable', variableName, r);
+    $("#dbVariableValue").val(r);
+}
+
+async function setDbVariable() {
+    const variableName = $("#dbVariableName").val();
+    const variableValue = $("#dbVariableValue").val();
+    console.log('SetDbVariable', variableName, variableValue);
+    var r = await connection.invoke('SetDbVariable', variableName, variableValue).catch(err => console.error(err.toString()));
+    if (r==0)
+        alert("Failed to set variable, it does not exists");
+}
+
+function convertShortGuid() {
+    const variableValue = $("#dbGuidVariableValue").val();
+    $("#dbVariableValue").val(shortguid(variableValue));
+}
+
+function guidToBytes(guid) {
+    var bytes = [];
+    guid.split('-').map((number, index) => {
+        var bytesInChar = index < 3 ? number.match(/.{1,2}/g).reverse() :  number.match(/.{1,2}/g);
+        bytesInChar.map((byte) => { bytes.push(parseInt(byte, 16));})
+    });
+    return bytes;
+}
+
+function shortguid(guid) {
+    const byteArray = guidToBytes(guid);
+    const base64String = btoa(String.fromCharCode(...byteArray))
+        .replace(/\//g, '_')  // Replace '/' with '_'
+        .replace(/\+/g, '-')  // Replace '+' with '-'
+        .substring(0, 22);     // Take the first 22 characters
+    
+    return base64String;
+}
+
+const guid = "06e80f70-4f78-4104-976b-9e5c64f0a0f4";
+const result = guidToBase64(guid);
+console.log(result);
+
 function scrollToBottom() {
     const container = $('.bloc-updates-container');
     container.scrollTop(container.prop('scrollHeight'));
