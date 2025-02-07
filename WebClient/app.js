@@ -46,11 +46,11 @@ async function login() {
     const environment = $("#environmentSelect").val();
     let apiUrl = '';
     if (environment == 'debug') {
-        apiUrl = "http://localhost:83/api"
+        apiUrl = "http://localhost:83/api/v1"
     } else if (environment == 'stable') {
-        apiUrl = "https://api.v3.thello.cloud/api";
+        apiUrl = "https://api.v3.thello.cloud/api/v1";
     } else {
-        apiUrl = "https://api."+environment+".v3.thello.cloud/api";
+        apiUrl = "https://api."+environment+".v3.thello.cloud/api/v1";
     }
 
     const response = await fetch(apiUrl + "/Authentication/Authenticate", {
@@ -68,7 +68,7 @@ async function login() {
         
         // 
         const headers = { };
-        const responseMine = await fetch(apiUrl + "/tenants/mine", {
+        const responseMine = await fetch(apiUrl + "/Tenants/Mine", {
             method: 'GET',
             headers: new Headers({
                 'Authorization': 'Bearer ' + token 
