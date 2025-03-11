@@ -15,12 +15,12 @@ Depending on usage, different APIs are available
 
 ## <a id="mgm_api">Management API</a>
 
-This API is reachable on following url: https://api.v3.thello.cloud. Online documentation is also available through Swagger UI : https://api.v3.thello.cloud/swagger/index.html
+This API is reachable on following url: https://api.thello.cloud. Online documentation is also available through Swagger UI : https://api.thello.cloud/swagger/index.html
 
 ### Click to call feature
 
 ```
-https://api.v3.thello.cloud/api/v1/Calls/ClickToCall?to=<NUMBER_TO_DIAL>&tenantId=<GUID_TENANT_ID>&apiKey=<USER_API_KEY>[&handsetId=<OPTIONAL_GUID_HANDSET_ID_>]
+https://api.thello.cloud/api/v1/Calls/ClickToCall?to=<NUMBER_TO_DIAL>&tenantId=<GUID_TENANT_ID>&apiKey=<USER_API_KEY>[&handsetId=<OPTIONAL_GUID_HANDSET_ID_>]
 ```
 When calling this web service, all active phone for user corresponding to the ApiKey will ring. When one of them is answered, the NUMBER_TO_DIAL will be dialed
 
@@ -49,7 +49,7 @@ async function login() {
     const username = $("#usernameInput").val();
     const password = $("#passwordInput").val();
     console.log('Current JWT Token:', token);
-    const response = await fetch('https://api.v3.thello.cloud/api/v1/Authentication/Authenticate', {
+    const response = await fetch('https://api.thello.cloud/api/v1/Authentication/Authenticate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userName: username, password: password })
@@ -74,7 +74,7 @@ The SignalR service is not located on the same url as the management API and is 
 Example:
 
 ```{lang=javascript} 
- const responseMine = await fetch(baseUrl + "/tenants/mine", {
+ const responseMine = await fetch(baseUrl + "/Tenants/Mine", {
         headers: { Authorization: 'Bearer '+token }
     });
     if (responseMine.ok) {
